@@ -1,0 +1,58 @@
+<mujoco model="2f85 scene">
+  <include file="2f85.xml"/>
+
+  <!-- Add some fluid viscosity to prevent the hanging box from jiggling forever -->
+  <option viscosity="0.1"/>
+
+  <statistic center="0 0 0.05" extent="0.3"/>
+
+  <visual>
+    <headlight diffuse="0.6 0.6 0.6" ambient="0.3 0.3 0.3" specular="0 0 0"/>
+    <rgba haze="0.15 0.25 0.35 1"/>
+    <global azimuth="60" elevation="-20"/>
+  </visual>
+
+  <asset>
+    <texture type="skybox" builtin="gradient" rgb1="0.3 0.5 0.7" rgb2="0 0 0" width="512" height="3072"/>
+    <texture type="2d" name="groundplane" builtin="checker" mark="edge" rgb1="0.2 0.3 0.4" rgb2="0.1 0.2 0.3"
+      markrgb="0.8 0.8 0.8" width="300" height="300"/>
+    <material name="groundplane" texture="groundplane" texuniform="true" texrepeat="5 5" reflectance="0.2"/>
+    <mesh name="cuboid_mesh" file="resources/cuboid.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="peg_mesh"    file="resources/peg.stl" scale="0.001 0.001 0.001"/>
+    <material name="mat_cuboid" rgba="0.80 0.72 0.60 1"/>
+    <material name="mat_peg"    rgba="0.40 0.45 0.50 1"/>
+  </asset>
+
+  <worldbody>
+    <light pos="0 0 1"/>
+    <light pos="0 -0.2 1" dir="0 0.2 -0.8" directional="true"/>
+    <geom name="floor" size="0 0 0.05" type="plane" material="groundplane"/>
+    <site size="0.002" pos="0 0 0.2" name="anchor"/>
+
+
+    <body name="target_cuboid" pos="-0.30 0.00 0.025">
+      <geom name="cuboid" type="mesh" mesh="cuboid_mesh" material="mat_cuboid"/>
+      <!-- helpful marker at the hole entry (adjust) -->
+      <site name="hole_entry" pos="0 0 0.02" size="0.003" rgba="1 0 0 1"/>
+    </body>
+    <body name="peg" pos="-0.12 0.00 0.06">
+      <freejoint/>
+      <!-- collision box half-sizes (meters): tune to your peg dims -->
+      <geom name="peg_collision" type="box" size="0.005 0.005 0.03" material="mat_peg"/>
+      <!-- visual overlay (no collisions thanks to class="visual") -->
+      <geom class="visual" type="mesh" mesh="peg_mesh"/>
+      <!-- tip marker to help with alignment -->
+      <site name="peg_tip" pos="0 0 -0.03" size="0.003" rgba="0 1 0 1"/>
+    </body>
+    <body name="gripper_base_mocap" mocap="true" pos="0 -0.2 0.25" quat="1 0 0 0">
+      <site name="gripper_base_mocap_site" size="0.01"/>
+    </body>
+  </worldbody>
+
+  <equality>
+    <weld body1="gripper_base" body2="gripper_base_mocap" solimp="0.9 0.9 0.01" solref="0.005 1"/>
+  </equality>
+
+</mujoco>
+
+
